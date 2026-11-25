@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "contact": {
+    "fullName": "Asha Verma", "firstName": "Asha", "lastName": "Verma",
+    "email": "asha.verma@example.com", "phone": "+919876543210",
+    "location": "Bengaluru, India",
+    "linkedinUrl": "https://linkedin.com/in/ashaverma", "githubUrl": "https://github.com/ashaverma",
+    "portfolioUrl": "https://ashaverma.dev"
+  },
+  "experience": [
+    { "employer": "Acme Labs", "title": "Software Engineer", "location": "Bengaluru", "startDate": "2022-06", "endDate": null,
+      "responsibilities": ["Built REST APIs in Node.js"], "achievements": ["Cut API latency by 40%"] }
+  ],
+  "education": [{ "degree": "B.Tech", "field": "Computer Science", "institution": "VIT", "graduationDate": "2022-05", "gpa": "8.4" }],
+  "skills": { "hard": ["TypeScript", "PostgreSQL"], "soft": ["Mentoring"], "frameworks": ["React", "Express"], "certifications": [] },
+  "workAuth": { "requiresSponsorship": false, "authorizedCountries": ["India"], "noticePeriodDays": 30, "salaryExpectation": "18 LPA" },
+  "qaCache": {}
+}
