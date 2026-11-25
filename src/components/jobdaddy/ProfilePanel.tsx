@@ -8,9 +8,9 @@ const split = (s: string) => s.split(",").map((x) => x.trim()).filter(Boolean);
 const field = "w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary";
 
 /**
- * Turns the uploaded resume into the Auto-Applier's candidate_profile.json, lets the user complete the details the resume
- * cannot give (CTC, notice period, challenge...), and compares the resume with a job description.
- * Everything runs in the browser; nothing is uploaded.
+- Turns the uploaded resume into the Auto-Applier's candidate_profile.json, lets the user complete the details the resume
+- cannot give (CTC, notice period, challenge...), and compares the resume with a job description.
+- Everything runs in the browser; nothing is uploaded.
  */
 export function ProfilePanel({ text }: { text: string }) {
   // First pass with no user input: gives us the values detected from the resume to pre-fill the form.
@@ -20,7 +20,9 @@ export function ProfilePanel({ text }: { text: string }) {
   const [notice, setNotice] = useState("");
   const [currentCtc, setCurrentCtc] = useState("");
   const [expectedCtc, setExpectedCtc] = useState("");
-  const [roles, setRoles] = useState(() => (detected?.targetRoles ?? []).join(", "));
+  const [targetRole, setTargetRole] = useState(() => detected?.targetRoles?.[0] ?? "");
+  const [preferredRole, setPreferredRole] = useState(() => detected?.targetRoles?.[1] ?? "");
+  const [roles, setRoles] = useState(() => (detected?.targetRoles ?? []).slice(2).join(", "));
   const [degree, setDegree] = useState(detected?.highestDegree ?? "");
   const [stack, setStack] = useState(() => (detected?.techStack ?? []).slice(0, 15).join(", "));
   const [challenge, setChallenge] = useState("");
@@ -28,9 +30,10 @@ export function ProfilePanel({ text }: { text: string }) {
 
   const draft = useMemo(() => {
     const n = Number(notice);
+    const combinedRoles = Array.from(new Set([targetRole.trim(), preferredRole.trim(), ...split(roles)].filter(Boolean)));
     const o: FromResumeOptions = {
       requiresSponsorship: needsSponsorship,
-      targetRoles: split(roles),
+      targetRoles: combinedRoles,
       techStack: split(stack),
       ...(degree ? { highestDegree: degree } : {}),
       ...(challenge ? { challenge } : {}),
@@ -39,13 +42,20 @@ export function ProfilePanel({ text }: { text: string }) {
       ...(notice.trim() && Number.isFinite(n) && n >= 0 ? { noticePeriodDays: Math.round(n) } : {}),
     };
     return profileFromResumeText(text, o);
-  }, [text, needsSponsorship, notice, currentCtc, expectedCtc, roles, degree, stack, challenge]);
+  }, [text, needsSponsorship, notice, currentCtc, expectedCtc, targetRole, preferredRole, roles, degree, stack, challenge]);
 
   const kw = useMemo(() => (jd.trim().length > 20 ? matchKeywords(text, jd) : null), [text, jd]);
   const p = draft.profile;
   const missing = draft.missing.filter((m) => !m.startsWith("workAuth"));
   const suggested = detected?.targetRoles ?? [];
-  const addRole = (r: string) => { const cur = split(roles); if (!cur.includes(r)) setRoles([...cur, r].join(", ")); };
+  const addRole = (r: string) => { 
+    if (!targetRole) setTargetRole(r);
+    else if (!preferredRole) setPreferredRole(r);
+    else {
+      const cur = split(roles); 
+      if (!cur.includes(r)) setRoles([...cur, r].join(", "));
+    }
+  };
 
   const download = () => {
     if (!p) return;
@@ -79,8 +89,16 @@ export function ProfilePanel({ text }: { text: string }) {
       {draft.warnings.map((w) => <p key={w} className="mt-2 text-xs text-muted-foreground">⚠ {w}</p>)}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className={label} htmlFor="pp-target-role">Target Role</label>
+          <input id="pp-target-role" className={field} value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="e.g. Senior Software Engineer" />
+        </div>
+        <div>
+          <label className={label} htmlFor="pp-preferred-role">Preferred Role</label>
+          <input id="pp-preferred-role" className={field} value={preferredRole} onChange={(e) => setPreferredRole(e.target.value)} placeholder="e.g. Full Stack Developer" />
+        </div>
         <div className="sm:col-span-2">
-          <label className={label} htmlFor="pp-roles">Targeted roles (comma separated)</label>
+          <label className={label} htmlFor="pp-roles">Other Target Roles (comma separated)</label>
           <input id="pp-roles" className={field} value={roles} onChange={(e) => setRoles(e.target.value)} placeholder="e.g. Backend Developer, Data Analyst" />
           {suggested.length > 0 && (
             <p className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">Suggested from your skills:
