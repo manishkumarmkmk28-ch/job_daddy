@@ -11,6 +11,8 @@ export function LeadGate({ onVerified }: { onVerified: (l: Lead) => void }) {
   const [code, setCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [targetRole, setTargetRole] = useState("");
+  const [preferredRole, setPreferredRole] = useState("");
   const [err, setErr] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -19,16 +21,25 @@ export function LeadGate({ onVerified }: { onVerified: (l: Lead) => void }) {
     if (name.trim().length < 2) return setErr("Please enter your full name.");
     if (!/^\d{7,12}$/.test(phone)) return setErr("Enter a valid phone number.");
     if (!/^\S+@\S+\.\S+$/.test(email)) return setErr("Enter a valid email address.");
+    if (!targetRole.trim()) return setErr("Please enter your target role.");
     setErr(""); setSending(true);
     setTimeout(() => { setSending(false); setStep("otp"); }, 700);
   };
 
   if (step === "otp")
     return <OtpStep phone={`${code} ${phone}`} onBack={() => setStep("form")}
-      onDone={() => onVerified({ name: name.trim(), phone: `${code}${phone}`, email: email.trim(), timestamp: new Date().toISOString() })} />;
+      onDone={() => onVerified({ 
+        name: name.trim(), 
+        phone: `${code}${phone}`, 
+        email: email.trim(), 
+        targetRole: targetRole.trim(),
+        preferredRole: preferredRole.trim(),
+        timestamp: new Date().toISOString() 
+      })} />;
 
   // `input` has no width on purpose: each field sets its own, so the country-code box can stay narrow
   // and the phone number box can take all the remaining space.
+  
   const input = "rounded-lg border border-input bg-background/60 px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30 transition";
   return (
     <form onSubmit={submit} className="space-y-4">
@@ -45,6 +56,11 @@ export function LeadGate({ onVerified }: { onVerified: (l: Lead) => void }) {
           onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 12))} />
       </div>
       <input className={`${input} w-full`} type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
+      
+      {/* Target Role & Preferred Role Added Here */}
+      <input className={`${input} w-full`} placeholder="Target Role (e.g. Frontend Developer)" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} />
+      <input className={`${input} w-full`} placeholder="Preferred Role (e.g. React / Full Stack Engineer)" value={preferredRole} onChange={(e) => setPreferredRole(e.target.value)} />
+
       {err && <p className="text-sm text-destructive">{err}</p>}
       <button disabled={sending} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground shadow-glow transition hover:brightness-110 disabled:opacity-70">
         {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue with OTP <ArrowRight className="h-4 w-4" /></>}
@@ -99,3 +115,9 @@ function OtpStep({ phone, onDone, onBack }: { phone: string; onDone: () => void;
     </div>
   );
 }
+```[cite: 5]
+
+<ElicitationsGroup message="If you need help updating the leads storage type definition or webhook payload:">
+  <Elicitation label="Update src/lib/leads.ts" query="Show me how to update src/lib/leads.ts to accept targetRole and preferredRole."/>
+  <Elicitation label="Update Google Apps Script" query="Show me the updated Google Apps Script doPost code to save target and preferred roles."/>
+</ElicitationsGroup>

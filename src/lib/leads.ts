@@ -3,7 +3,14 @@
 export const LEAD_WEBHOOK_URL: string = import.meta.env["VITE_LEAD_WEBHOOK_URL"] ?? "";
 export const LEAD_KEY = "jobdaddy_lead_v1";
 
-export type Lead = { name: string; phone: string; email: string; timestamp: string };
+export type Lead = { 
+  name: string; 
+  phone: string; 
+  email: string; 
+  targetRole: string; 
+  preferredRole: string; 
+  timestamp: string 
+};
 
 export async function sendLead(lead: Lead) {
   if (!LEAD_WEBHOOK_URL) {
@@ -11,7 +18,12 @@ export async function sendLead(lead: Lead) {
     return;
   }
   try {
-    await fetch(LEAD_WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(lead) });
+    await fetch(LEAD_WEBHOOK_URL, { 
+      method: "POST", 
+      mode: "no-cors", 
+      headers: { "Content-Type": "text/plain" }, 
+      body: JSON.stringify(lead) 
+    });
   } catch (e) {
     console.warn("Lead webhook failed", e);
   }
@@ -43,3 +55,9 @@ export function clearLead() {
     /* ignore */
   }
 }
+```[cite: 5]
+
+<ElicitationsGroup message="If you need help updating other parts of your project:">
+  <Elicitation label="Update Google Apps Script" query="Show me the updated Google Apps Script doPost code to save target and preferred roles into my Google Sheet."/>
+  <Elicitation label="Check Google Sheet columns" query="What exact column headers should I have in my Google Sheet for these new fields?"/>
+</ElicitationsGroup>
