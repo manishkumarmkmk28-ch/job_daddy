@@ -74,6 +74,8 @@ function Index() {
           metrics: res.metrics,
           flags: res.flags.map((f) => `${f.phrase} (${f.count})`),
           skills: extracted?.skills.hard ?? [],
+          targetRole: lead.targetRole,
+          preferredRole: lead.preferredRole,
         });
       }
     } catch (e) {
